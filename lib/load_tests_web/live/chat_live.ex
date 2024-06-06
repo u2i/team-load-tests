@@ -20,16 +20,17 @@ defmodule LoadTestsWeb.ChatLive do
     IO.inspect(message_params)
     case LoadTests.Chat.Message.changeset(%LoadTests.Chat.Message{}, message_params) do
       %Ecto.Changeset{valid?: true} = changeset ->
-        LoadTests.Repo.insert(changeset)
+        {:ok, message} = LoadTests.Repo.insert(changeset)
         IO.puts("HELLO WORLD!!!")
         form = LoadTests.Chat.Message.changeset(%LoadTests.Chat.Message{}, %{})
+        chat_id = socket.assigns.chat_id
         socket =
-          assign(socket, form: to_form(form), messages: get_messages(socket.assigns.chat_id))
+          assign(socket, form: to_form(form), messages: socket.assigns.messages ++ [message])
           |> start_async(:my_task, fn ->
             # sleep for .5 seconds
             Process.sleep(500)
             changeset = LoadTests.Chat.Message.changeset(%LoadTests.Chat.Message{},
-              %{"chat_id" => socket.assigns.chat_id,
+              %{"chat_id" => chat_id,
                 "message" => "Tell me more!"})
             LoadTests.Repo.insert(changeset)
           end)
@@ -48,8 +49,8 @@ defmodule LoadTestsWeb.ChatLive do
     {:noreply, assign(socket, form: to_form(form))}
   end
 
-  def handle_async(:my_task, {:ok, _ }, socket) do
-    {:noreply, assign(socket, messages: get_messages(socket.assigns.chat_id))}
+  def handle_async(:my_task, {:ok, {:ok, message} }, socket) do
+    {:noreply, assign(socket, messages: socket.assigns.messages ++ [message])}
   end
 
   def get_messages(chat_id) do
