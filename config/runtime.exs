@@ -31,7 +31,7 @@ if config_env() == :prod do
   %URI{host: database_host} = URI.parse(database_url)
   _maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
-  config :load_tests, Compensation.Repo,
+  config :load_tests, LoadTests.Repo,
     url: database_url,
     ssl_opts: [
       cacertfile: "/etc/ssl/certs/ca-certificates.crt",
