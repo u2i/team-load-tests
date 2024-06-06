@@ -30,11 +30,20 @@ if config_env() == :prod do
 
   maybe_ipv6 = if System.get_env("ECTO_IPV6") in ~w(true 1), do: [:inet6], else: []
 
-  config :load_tests, LoadTests.Repo,
-    # ssl: true,
+  config :compensation, Compensation.Repo,
     url: database_url,
-    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10"),
-    socket_options: maybe_ipv6
+    ssl_opts: [
+      cacertfile: "/etc/ssl/certs/ca-certificates.crt",
+      server_name_indication: to_charlist(database_host),
+      verify: :verify_peer,
+      customize_hostname_check: [
+        # By default, Erlang does not support wildcard certificates. This function supports validating wildcard hosts
+        match_fun: :public_key.pkix_verify_hostname_match_fun(:https)
+      ]
+    ],
+    ssl: true,
+    # migration_lock: false,
+    pool_size: String.to_integer(System.get_env("POOL_SIZE") || "10")
 
   # The secret key base is used to sign/encrypt cookies and other secrets.
   # A default value is used in config/dev.exs and config/test.exs but you
