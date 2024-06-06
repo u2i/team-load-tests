@@ -1,9 +1,9 @@
-# fly.toml app configuration file generated for load-tests on 2024-06-06T12:20:04+02:00
+# fly.toml app configuration file generated for loadnewapp on 2024-06-06T14:00:29+02:00
 #
 # See https://fly.io/docs/reference/configuration/ for information about how to use this file.
 #
 
-app = 'load-tests'
+app = 'loadnewapp'
 primary_region = 'waw'
 kill_signal = 'SIGTERM'
 
@@ -13,7 +13,7 @@ kill_signal = 'SIGTERM'
   release_command = '/app/bin/migrate'
 
 [env]
-  PHX_HOST = 'load-tests.fly.dev'
+  PHX_HOST = 'loadnewapp.fly.dev'
   PORT = '8080'
 
 [http_service]
