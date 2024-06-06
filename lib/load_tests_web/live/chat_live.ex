@@ -23,7 +23,18 @@ defmodule LoadTestsWeb.ChatLive do
         LoadTests.Repo.insert(changeset)
         IO.puts("HELLO WORLD!!!")
         form = LoadTests.Chat.Message.changeset(%LoadTests.Chat.Message{}, %{})
-        {:noreply, assign(socket, form: to_form(form), messages: get_messages(socket.assigns.chat_id))}
+        socket =
+          assign(socket, form: to_form(form), messages: get_messages(socket.assigns.chat_id))
+          |> start_async(:my_task, fn ->
+            # sleep for .5 seconds
+            Process.sleep(500)
+            changeset = LoadTests.Chat.Message.changeset(%LoadTests.Chat.Message{},
+              %{"chat_id" => socket.assigns.chat_id,
+                "message" => "Tell me more!"})
+            LoadTests.Repo.insert(changeset)
+          end)
+
+        {:noreply, socket}
 
       %Ecto.Changeset{valid?: false} = changeset ->
         IO.puts("failed validation")
@@ -35,6 +46,10 @@ defmodule LoadTestsWeb.ChatLive do
   def handle_event("change", %{"message" => message_params}, socket) do
     form = LoadTests.Chat.Message.changeset(%LoadTests.Chat.Message{}, message_params)
     {:noreply, assign(socket, form: to_form(form))}
+  end
+
+  def handle_async(:my_task, {:ok, _ }, socket) do
+    {:noreply, assign(socket, messages: get_messages(socket.assigns.chat_id))}
   end
 
   def get_messages(chat_id) do
