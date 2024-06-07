@@ -7,10 +7,6 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
   def render(assigns) do
     ~H"""
     <div>
-      <.header>
-        <%= @title %>
-      </.header>
-
       <.simple_form
         for={@form}
         id={"message-form-#{assigns.id}"}
@@ -18,9 +14,15 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={@form[:body]} type="text" label="Body" />
+        <.input field={@form[:body]} type="textarea" label="New Message" />
         <:actions>
-          <.button phx-disable-with="Saving...">Save Message</.button>
+          <.button phx-disable-with="Sending ...">
+            <%= if assigns.id == :new, do: "Send", else: "Update message" %>
+          </.button>
+
+          <%= if assigns.id != :new do %>
+            <.link patch={assigns.patch}>Cancel</.link>
+          <% end %>
         </:actions>
       </.simple_form>
     </div>
@@ -50,10 +52,10 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
   @impl true
   def handle_event("save", %{"message_line" => message_line_params}, socket) do
     message_params = Map.put(message_line_params, "conversation_id", socket.assigns.room)
+    action = if socket.assigns.action == :edit, do: :edit, else: :new
 
-    save_message_line(socket, socket.assigns.action, message_params)
+    save_message_line(socket, action, message_params)
   end
-
 
   @impl true
   def handle_async(:reply, _result, socket) do

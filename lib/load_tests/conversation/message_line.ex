@@ -14,5 +14,6 @@ defmodule LoadTests.Conversation.MessageLine do
     message_line
     |> cast(attrs, [:conversation_id, :body])
     |> validate_required([:conversation_id, :body])
+    |> validate_length(:body, min: 3, max: 140)
   end
 end
