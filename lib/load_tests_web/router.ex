@@ -24,9 +24,6 @@ defmodule LoadTestsWeb.Router do
       live "/", MessageLineLive.Index, :index
       live "/new", MessageLineLive.Index, :new
       live "/messages/:id/edit", MessageLineLive.Index, :edit
-
-      live "/messages/:id", MessageLineLive.Show, :show
-      live "/messages/:id/show/edit", MessageLineLive.Show, :edit
     end
   end
 

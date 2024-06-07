@@ -9,7 +9,6 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
     <div>
       <.header>
         <%= @title %>
-        <:subtitle>Use this form to manage message_line records in your database.</:subtitle>
       </.header>
 
       <.simple_form
@@ -19,7 +18,6 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={@form[:conversation_id]} type="number" label="Conversation" />
         <.input field={@form[:body]} type="text" label="Body" />
         <:actions>
           <.button phx-disable-with="Saving...">Save Message line</.button>
@@ -50,7 +48,9 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
   end
 
   def handle_event("save", %{"message_line" => message_line_params}, socket) do
-    save_message_line(socket, socket.assigns.action, message_line_params)
+    message_params = Map.put(message_line_params, "conversation_id", socket.assigns.room)
+
+    save_message_line(socket, socket.assigns.action, message_params)
   end
 
   defp save_message_line(socket, :edit, message_line_params) do

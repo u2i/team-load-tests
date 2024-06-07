@@ -32,7 +32,7 @@ defmodule LoadTestsWeb.MessageLineLive.Index do
     socket
     |> assign(:page_title, "Listing Message lines")
     |> assign(:room, room)
-    |> assign(:message_line, nil)
+    |> assign(:message_line, %MessageLine{conversation_id: String.to_integer(room)})
   end
 
   @impl true
