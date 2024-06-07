@@ -1,7 +1,7 @@
 <.header>
   Listing Message lines
   <:actions>
-    <.link patch={~p"/conversation/#{@room}/message_lines/new"}>
+    <.link patch={~p"/conversation/#{@room}/new"}>
       <.button>New Message line</.button>
     </.link>
   </:actions>
@@ -10,15 +10,15 @@
 <.table
   id="message_lines"
   rows={@streams.message_lines}
-  row_click={fn {_id, message_line} -> JS.navigate(~p"/conversation/#{message_line.conversation_id}/message_lines/#{message_line}") end}
+  row_click={fn {_id, message_line} -> JS.navigate(~p"/conversation/#{message_line.conversation_id}/messages/#{message_line}") end}
 >
   <:col :let={{_id, message_line}} label="Conversation"><%= message_line.conversation_id %></:col>
   <:col :let={{_id, message_line}} label="Body"><%= message_line.body %></:col>
   <:action :let={{_id, message_line}}>
     <div class="sr-only">
-      <.link navigate={~p"/conversation/#{message_line.conversation_id}/message_lines/#{message_line}"}>Show</.link>
+      <.link navigate={~p"/conversation/#{message_line.conversation_id}/messages/#{message_line}"}>Show</.link>
     </div>
-    <.link patch={~p"/conversation/#{message_line.conversation_id}/message_lines/#{message_line}/edit"}>Edit</.link>
+    <.link patch={~p"/conversation/#{message_line.conversation_id}/messages/#{message_line}/edit"}>Edit</.link>
   </:action>
   <:action :let={{id, message_line}}>
     <.link
@@ -34,13 +34,13 @@
   :if={@live_action in [:new, :edit]}
   show
   id="message_line-modal"
-  on_cancel={JS.patch(~p"/conversation/#{@room}/message_lines")}>
+  on_cancel={JS.patch(~p"/conversation/#{@room}")}>
   <.live_component
     module={LoadTestsWeb.MessageLineLive.FormComponent}
     id={@message_line.id || :new}
     title={@page_title}
     action={@live_action}
     message_line={@message_line}
-    patch={~p"/conversation/#{@room}/message_lines"}
+    patch={~p"/conversation/#{@room}"}
   />
 </.modal>
