@@ -20,7 +20,7 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
       >
         <.input field={@form[:body]} type="text" label="Body" />
         <:actions>
-          <.button phx-disable-with="Saving...">Save Message line</.button>
+          <.button phx-disable-with="Saving...">Save Message</.button>
         </:actions>
       </.simple_form>
     </div>
@@ -47,6 +47,7 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
     {:noreply, assign_form(socket, changeset)}
   end
 
+  @impl true
   def handle_event("save", %{"message_line" => message_line_params}, socket) do
     message_params = Map.put(message_line_params, "conversation_id", socket.assigns.room)
 
@@ -58,7 +59,10 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
       {:ok, message_line} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Message #{message_line.id} updated successfully")
+         |> put_flash(:info, "Message updated successfully")
+         |> start_async(:reply, fn ->
+              reply(message_line, "Oh wait, changed your mind?")
+            end)
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -71,9 +75,12 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
       {:ok, message_line} ->
         {:noreply,
          socket
-         |> put_flash(:info, "Message #{message_line.id} created successfully")
+         |> put_flash(:info, "Message created successfully")
+         |> start_async(:reply, fn ->
+              reply(message_line, "Tell me more!")
+              reply(message_line, "I'm still here!")
+            end)
          |> push_patch(to: socket.assigns.patch)}
-
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
     end
@@ -81,5 +88,14 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
 
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do
     assign(socket, :form, to_form(changeset))
+  end
+
+  defp reply(message_line, body) do
+    Process.sleep(1000)
+
+    Conversation.create_message_line(%{
+      conversation_id: message_line.conversation_id,
+      body: body
+    })
   end
 end

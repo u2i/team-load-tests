@@ -18,21 +18,21 @@ defmodule LoadTestsWeb.MessageLineLive.Index do
 
   defp apply_action(socket, :edit, %{"id" => id, "room" => room}) do
     socket
-    |> assign(:page_title, "Edit Message line")
+    |> assign(:page_title, "Edit Message")
     |> assign(:room, room)
     |> assign(:message_line, Conversation.get_message_line!(id))
   end
 
   defp apply_action(socket, :new, %{"room" => room}) do
     socket
-    |> assign(:page_title, "New Message line")
+    |> assign(:page_title, "New Message")
     |> assign(:room, room)
     |> assign(:message_line, %MessageLine{conversation_id: String.to_integer(room)})
   end
 
   defp apply_action(socket, :index, %{"room" => room}) do
     socket
-    |> assign(:page_title, "Listing Message lines")
+    |> assign(:page_title, "Conversation ##{room}")
     |> assign(:room, room)
     |> assign(:message_line, %MessageLine{conversation_id: String.to_integer(room)})
   end
@@ -42,7 +42,9 @@ defmodule LoadTestsWeb.MessageLineLive.Index do
     message_line = Conversation.get_message_line!(id)
     {:ok, _} = Conversation.delete_message_line(message_line)
 
-    {:noreply, socket}
+    {:noreply,
+     socket
+     |> put_flash(:info, "Message deleted successfully")}
   end
 
   @impl true
