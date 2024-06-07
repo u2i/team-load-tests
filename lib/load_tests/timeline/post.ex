@@ -14,5 +14,7 @@ defmodule LoadTests.Timeline.Post do
     post
     |> cast(attrs, [:username, :body])
     |> validate_required([:username, :body])
+    |> validate_length(:username, min: 3, max: 50)
+    |> validate_length(:body, min: 3, max: 140)
   end
 end

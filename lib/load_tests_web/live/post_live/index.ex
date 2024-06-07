@@ -6,6 +6,8 @@ defmodule LoadTestsWeb.PostLive.Index do
 
   @impl true
   def mount(_params, _session, socket) do
+    if connected?(socket), do: Timeline.subscribe()
+
     {:ok, stream(socket, :posts, Timeline.list_posts())}
   end
 
@@ -33,8 +35,18 @@ defmodule LoadTestsWeb.PostLive.Index do
   end
 
   @impl true
-  def handle_info({LoadTestsWeb.PostLive.FormComponent, {:saved, post}}, socket) do
+  def handle_info({:post_created, post}, socket) do
+    {:noreply, stream_insert(socket, :posts, post, at: 0)}
+  end
+
+  @impl true
+  def handle_info({:post_updated, post}, socket) do
     {:noreply, stream_insert(socket, :posts, post)}
+  end
+
+  @impl true
+  def handle_info({:post_deleted, post}, socket) do
+    {:noreply, stream_delete(socket, :posts, post)}
   end
 
   @impl true
@@ -42,6 +54,6 @@ defmodule LoadTestsWeb.PostLive.Index do
     post = Timeline.get_post!(id)
     {:ok, _} = Timeline.delete_post(post)
 
-    {:noreply, stream_delete(socket, :posts, post)}
+    {:noreply, socket}
   end
 end
