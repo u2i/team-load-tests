@@ -14,7 +14,7 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
         phx-change="validate"
         phx-submit="save"
       >
-        <.input field={@form[:body]} type="textarea" label="New Message" />
+        <.input field={@form[:body]} type="textarea" label={assigns.title} />
         <:actions>
           <.button phx-disable-with="Sending ...">
             <%= if assigns.id == :new, do: "Send", else: "Update message" %>

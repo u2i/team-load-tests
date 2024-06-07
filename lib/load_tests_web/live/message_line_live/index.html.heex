@@ -1,7 +1,7 @@
 <.live_component
   module={LoadTestsWeb.MessageLineLive.FormComponent}
   id={@message_line.id || :new}
-  title={'New Message'}
+  title={@message_line.id && "Edit Message" || "New Message"}
   action={@live_action}
   room={@room}
   message_line={@message_line}
