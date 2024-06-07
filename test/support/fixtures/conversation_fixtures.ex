@@ -12,7 +12,7 @@ defmodule LoadTests.ConversationFixtures do
       attrs
       |> Enum.into(%{
         body: "some body",
-        conversation_id: 42
+        conversation_id: 1
       })
       |> LoadTests.Conversation.create_message_line()
 
