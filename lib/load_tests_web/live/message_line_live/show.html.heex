@@ -1,0 +1,27 @@
+<.header>
+  Message line <%= @message_line.id %>
+  <:subtitle>This is a message_line record from your database.</:subtitle>
+  <:actions>
+    <.link patch={~p"/message_lines/#{@message_line}/show/edit"} phx-click={JS.push_focus()}>
+      <.button>Edit message_line</.button>
+    </.link>
+  </:actions>
+</.header>
+
+<.list>
+  <:item title="Conversation"><%= @message_line.conversation_id %></:item>
+  <:item title="Body"><%= @message_line.body %></:item>
+</.list>
+
+<.back navigate={~p"/message_lines"}>Back to message_lines</.back>
+
+<.modal :if={@live_action == :edit} id="message_line-modal" show on_cancel={JS.patch(~p"/message_lines/#{@message_line}")}>
+  <.live_component
+    module={LoadTestsWeb.MessageLineLive.FormComponent}
+    id={@message_line.id}
+    title={@page_title}
+    action={@live_action}
+    message_line={@message_line}
+    patch={~p"/message_lines/#{@message_line}"}
+  />
+</.modal>

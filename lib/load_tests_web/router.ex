@@ -19,6 +19,15 @@ defmodule LoadTestsWeb.Router do
 
     get "/", PageController, :home
     live "/chat/:id", ChatLive, :index
+
+    scope "/conversation/:room" do
+      live "/message_lines", MessageLineLive.Index, :index
+      live "/message_lines/new", MessageLineLive.Index, :new
+      live "/message_lines/:id/edit", MessageLineLive.Index, :edit
+
+      live "/message_lines/:id", MessageLineLive.Show, :show
+      live "/message_lines/:id/show/edit", MessageLineLive.Show, :edit
+    end
   end
 
   # Other scopes may use custom stacks.
