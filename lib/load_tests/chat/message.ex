@@ -14,5 +14,6 @@ defmodule LoadTests.Chat.Message do
     message
     |> cast(attrs, [:chat_id, :message])
     |> validate_required([:chat_id, :message])
+    |> validate_length(:message, min: 2, max: 160)
   end
 end
