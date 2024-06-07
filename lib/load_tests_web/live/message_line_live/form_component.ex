@@ -13,7 +13,7 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
 
       <.simple_form
         for={@form}
-        id="message_line-form"
+        id={"message-form-#{assigns.id}"}
         phx-target={@myself}
         phx-change="validate"
         phx-submit="save"
@@ -54,6 +54,12 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
     save_message_line(socket, socket.assigns.action, message_params)
   end
 
+
+  @impl true
+  def handle_async(:reply, _result, socket) do
+    {:noreply, socket}
+  end
+
   defp save_message_line(socket, :edit, message_line_params) do
     case Conversation.update_message_line(socket.assigns.message_line, message_line_params) do
       {:ok, message_line} ->
@@ -73,14 +79,18 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
   defp save_message_line(socket, :new, message_line_params) do
     case Conversation.create_message_line(message_line_params) do
       {:ok, message_line} ->
+        empty = Conversation.MessageLine.changeset(%Conversation.MessageLine{}, %{})
+
         {:noreply,
          socket
          |> put_flash(:info, "Message created successfully")
+         |> assign(form: to_form(empty))
          |> start_async(:reply, fn ->
               reply(message_line, "Tell me more!")
               reply(message_line, "I'm still here!")
             end)
          |> push_patch(to: socket.assigns.patch)}
+
       {:error, %Ecto.Changeset{} = changeset} ->
         {:noreply, assign_form(socket, changeset)}
     end

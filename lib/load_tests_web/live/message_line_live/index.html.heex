@@ -1,10 +1,5 @@
 <.header>
   Convesation #<%= @room %>
-  <:actions>
-    <.link patch={~p"/conversation/#{@room}/new"}>
-      <.button>New Message</.button>
-    </.link>
-  </:actions>
 </.header>
 
 <.table
@@ -29,18 +24,29 @@
   </:action>
 </.table>
 
-<.modal
-  :if={@live_action in [:new, :edit]}
-  show
-  id="message_line-modal"
-  on_cancel={JS.patch(~p"/conversation/#{@room}")}>
+<%= if @live_action == :edit do %>
+  <.modal
+    show
+    id="message_line-modal"
+    on_cancel={JS.patch(~p"/conversation/#{@room}")}>
+    <.live_component
+      module={LoadTestsWeb.MessageLineLive.FormComponent}
+      id={@message_line.id}
+      title={@page_title}
+      action={:edit}
+      room={@room}
+      message_line={@message_line}
+      patch={~p"/conversation/#{@room}"}
+    />
+  </.modal>
+<% else %>
   <.live_component
     module={LoadTestsWeb.MessageLineLive.FormComponent}
-    id={@message_line.id || :new}
-    title={@page_title}
-    action={@live_action}
+    id={:new}
+    title={'New Message'}
+    action={:new}
     room={@room}
     message_line={@message_line}
     patch={~p"/conversation/#{@room}"}
   />
-</.modal>
+<% end %>

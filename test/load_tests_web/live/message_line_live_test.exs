@@ -26,17 +26,12 @@ defmodule LoadTestsWeb.MessageLineLiveTest do
     test "saves new message_line", %{conn: conn} do
       {:ok, index_live, _html} = live(conn, ~p"/conversation/1")
 
-      assert index_live |> element("a", "New Message") |> render_click() =~
-        "New Message"
-
-      assert_patch(index_live, ~p"/conversation/1/new")
-
       assert index_live
-        |> form("#message_line-form", message_line: @invalid_attrs)
+        |> form("#message-form-new", message_line: @invalid_attrs)
         |> render_change() =~ "can&#39;t be blank"
 
       assert index_live
-        |> form("#message_line-form", message_line: @create_attrs)
+        |> form("#message-form-new", message_line: @create_attrs)
         |> render_submit()
 
       assert_patch(index_live, ~p"/conversation/1")
@@ -55,11 +50,11 @@ defmodule LoadTestsWeb.MessageLineLiveTest do
       assert_patch(index_live, ~p"/conversation/1/messages/#{message_line}/edit")
 
       assert index_live
-        |> form("#message_line-form", message_line: @invalid_attrs)
+        |> form("#message-form-#{message_line.id}", message_line: @invalid_attrs)
         |> render_change() =~ "can&#39;t be blank"
 
       assert index_live
-        |> form("#message_line-form", message_line: @update_attrs)
+        |> form("#message-form-#{message_line.id}", message_line: @update_attrs)
         |> render_submit()
 
       assert_patch(index_live, ~p"/conversation/1")
