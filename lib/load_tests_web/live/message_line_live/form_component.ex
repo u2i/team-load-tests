@@ -56,11 +56,9 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
   defp save_message_line(socket, :edit, message_line_params) do
     case Conversation.update_message_line(socket.assigns.message_line, message_line_params) do
       {:ok, message_line} ->
-        notify_parent({:saved, message_line})
-
         {:noreply,
          socket
-         |> put_flash(:info, "Message line updated successfully")
+         |> put_flash(:info, "Message #{message_line.id} updated successfully")
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -71,11 +69,9 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
   defp save_message_line(socket, :new, message_line_params) do
     case Conversation.create_message_line(message_line_params) do
       {:ok, message_line} ->
-        notify_parent({:saved, message_line})
-
         {:noreply,
          socket
-         |> put_flash(:info, "Message line created successfully")
+         |> put_flash(:info, "Message #{message_line.id} created successfully")
          |> push_patch(to: socket.assigns.patch)}
 
       {:error, %Ecto.Changeset{} = changeset} ->
@@ -86,6 +82,4 @@ defmodule LoadTestsWeb.MessageLineLive.FormComponent do
   defp assign_form(socket, %Ecto.Changeset{} = changeset) do
     assign(socket, :form, to_form(changeset))
   end
-
-  defp notify_parent(msg), do: send(self(), {__MODULE__, msg})
 end

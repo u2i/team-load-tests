@@ -57,6 +57,7 @@ defmodule LoadTests.Conversation do
     %MessageLine{}
     |> MessageLine.changeset(attrs)
     |> Repo.insert()
+    |> broadcast(:message_created)
   end
 
   @doc """
@@ -75,6 +76,7 @@ defmodule LoadTests.Conversation do
     message_line
     |> MessageLine.changeset(attrs)
     |> Repo.update()
+    |> broadcast(:message_updated)
   end
 
   @doc """
@@ -91,6 +93,7 @@ defmodule LoadTests.Conversation do
   """
   def delete_message_line(%MessageLine{} = message_line) do
     Repo.delete(message_line)
+    |> broadcast(:message_deleted)
   end
 
   @doc """
@@ -104,5 +107,16 @@ defmodule LoadTests.Conversation do
   """
   def change_message_line(%MessageLine{} = message_line, attrs \\ %{}) do
     MessageLine.changeset(message_line, attrs)
+  end
+
+  def subscribe(id) do
+    Phoenix.PubSub.subscribe(LoadTests.PubSub, "conversation-#{id}")
+  end
+
+  defp broadcast({:error, _reason} = error, _event), do: error
+  defp broadcast({:ok, message}, event) do
+    Phoenix.PubSub.broadcast(LoadTests.PubSub, "conversation-#{message.conversation_id}", { event, message })
+
+    {:ok, message}
   end
 end

@@ -6,6 +6,8 @@ defmodule LoadTestsWeb.MessageLineLive.Index do
 
   @impl true
   def mount(%{"room" => room}, _session, socket) do
+    if connected?(socket), do: Conversation.subscribe(room)
+
     {:ok, stream(socket, :message_lines, Conversation.conversation(room))}
   end
 
@@ -36,15 +38,25 @@ defmodule LoadTestsWeb.MessageLineLive.Index do
   end
 
   @impl true
-  def handle_info({LoadTestsWeb.MessageLineLive.FormComponent, {:saved, message_line}}, socket) do
-    {:noreply, stream_insert(socket, :message_lines, message_line)}
-  end
-
-  @impl true
   def handle_event("delete", %{"id" => id}, socket) do
     message_line = Conversation.get_message_line!(id)
     {:ok, _} = Conversation.delete_message_line(message_line)
 
-    {:noreply, stream_delete(socket, :message_lines, message_line)}
+    {:noreply, socket}
+  end
+
+  @impl true
+  def handle_info({:message_created, message}, socket) do
+    {:noreply, stream_insert(socket, :message_lines, message, at: 0)}
+  end
+
+  @impl true
+  def handle_info({:message_updated, message}, socket) do
+    {:noreply, stream_insert(socket, :message_lines, message)}
+  end
+
+  @impl true
+  def handle_info({:message_deleted, message}, socket) do
+    {:noreply, stream_delete(socket, :message_lines, message)}
   end
 end
